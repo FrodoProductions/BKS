@@ -10,10 +10,8 @@ int main(int argc, char const *argv[]) {
   // Ein Puffer für den später eingelesenen Inhalt wird erzeugt (die Größe 100 ist jetzt nur arbiträr gesetzt).
   char puffer[100];
 
-  // Es wird überprüft, ob es sich bei dem Input um eine Datei handelt (bzw. es wird geguckt, ob eine Datei unter dem Pfad existiert).
-  // Diese Art der Verwendung von access() hab ich in diesem StackOverflow-Thread gefunden:
-  // https://stackoverflow.com/questions/230062/whats-the-best-way-to-check-if-a-file-exists-in-c
-  if (access(*++argv, F_OK) == 0) {
+
+  if (argc < 1) {
 
     // Nun wird für jeden Input iteriert, damit der Inhalt jeder Datei ausgegeben wird.
     for (size_t i = 0; i < argc-1; i++) {
@@ -30,17 +28,17 @@ int main(int argc, char const *argv[]) {
       // Der Kanal wird geschlossen.
       close(in);
     }
+
   } else {
 
-    // Nun wird für jeden Input iteriert, damit jeder Input ausgegeben wird.
-    for (size_t i = 0; i < argc-1; i++) {
+    // Es wird ein Eingabeprompt geöffnet, der Inalt in den Puffer geschrieben und dessen Größe gespeichert.
+    int inputsize = read(0, &puffer, 1024);
 
-      // Der String wird in die Konsole ausgegeben.
-      write(1, argv[i], strlen(argv[i]));
+    // Jetzt wird der Puffer in die Konsole ausgegeben.
+    write(1, puffer, inputsize);
 
-      // Dahinter kommt eine Newline, damit alles eine Ordnung hat :>
-      write(1, "\n", 1);
-    }
+    // Dahinter kommt eine Newline, damit alles seine Ordnung hat :>
+    write(1, "\n", 1);
   }
 
   return 0;
