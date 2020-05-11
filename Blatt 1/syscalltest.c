@@ -25,7 +25,7 @@ int main(int argc, char const *argv[]) {
       // Der Kanal wird geschlossen.
       close(in);
     }
-
+//HALLO qwleiufgwrqeoiugwqoriuefgklwqeuriufgqoui3we4golqiuezfgoiqughwqerc
   // Dieser Fall wird aktiviert, wenn keine Argumente gegeben wurden, cat soll hier wie echo funktionieren.
   } else {
 
