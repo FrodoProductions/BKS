@@ -1,0 +1,38 @@
+\documentclass[11pt]{article}
+\pagestyle{empty}
+\usepackage[latin1]{inputenc}
+\usepackage{a4wide}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{german}
+\usepackage{multicol}
+
+\parindent0mm
+
+\begin{document}
+
+\begin{center}
+
+Betriebs- und Kommunikationssysteme
+
+{\Large2. Aufgabenblatt}
+
+Ferdinand Markward Scheller, Frederick Brandenburg
+
+\end{center}
+
+\begin{enumerate}
+	
+	\item In spezialisierten Systemen w\"are es m\"oglich, eine direkte Verbindung zwischen der Hardware und dem Prozessor zu ziehen, \"uber die, ohne Verwendung eines Interrupt Controllers, Interrupts kommuniziert werden k\"onnen.
+
+	\item Grunds\"atzlich sind nur Systemaufrufe, die nicht zwangsl\"aufig im Kernel Mode ablaufen m\"ussen f\"ur die Weitergabe per vDSO geeignet. Dar\"uber hinaus ist es sinnvoll, nur Aufrufe zu \"ubergeben, die von dem User nur gelesen werden, ein Schreibversuch w\"urde fehlschlagen, da der User nicht in Kerneladressr\"aumen schreiben kann.
+
+	\item Kooperatives Multitasking bietet den Vorteil, dass die Entwicklung von Programmen insofern einfacher ist, dass Programme nicht an jeder Stelle wiedereintrittsf\"ahig sein m\"ussen. Die Stellen, an denen ein Prozess unterbrochen und sp\"ater wieder weitergef\"uhrt werden kann, k\"onnen beliebig bei der Entwicklung gew\"ahlt werden. (http://www.on-time.com/rtos-32-docs/rtkernel-32/programming-manual/advanced-topics/preemptive-or-cooperative-multitasking.htm (12.05.2020, 18:20 Uhr))
+
+	\item Im PCB werden zun\"achst Informationen gespeichert, die f\"ur die Identifikation des Prozesses n\"otig sind (PID, Elternprozess, Benutzer). Dazu kommen Prozessorstatusinformationen (stack pointer, program counter, processor status word), f\"ur den User sichtbare Register und diverse Kontrollinformationen (benutzer Speicher, benutzte Prozessorzeit, I/O, Informationen bzgl. scheduling etc.). Diese Werte werden aktualisiert, wenn der Prozess den aktiven Zustand verl\"asst (also in ready oder blocked wechselt) und eingelesen, wenn er diesen wieder betritt.
+		
+\end{enumerate}
+
+\end{document}

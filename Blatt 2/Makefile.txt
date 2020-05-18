@@ -3,7 +3,7 @@ NASMFLAGS=-f elf64
 CFLAGS=-std=c11 -Wall -Wextra -pedantic -O2
 CPPFLAGS=-MMD -MF $*.d
 
-programs=calculator
+programs=bc_Scheller_Brandenburg
 all: $(programs)
 
 -include *.d
