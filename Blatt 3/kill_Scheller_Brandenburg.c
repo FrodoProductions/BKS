@@ -5,8 +5,8 @@
 
 int main(int argc, char const *argv[]) {
 
-  //ÜBerprüfen, ob der erste Input eine Signalnummer ist.
-  if (atoi(argv[1]) < 0){
+  //ÜBerprüfen, ob der erste Input eine Signalnummer ist (Schamlos wird davon ausgegangen, das wir hier nicht eine PID unter 50 haben)
+  if (atoi(argv[1]) < 50){
     //Für jede eingegebene PID wird der kill Befehl aufgerufen
     for (int i = 2; i < argc; i++){
       kill(atoi(argv[i]), atoi(argv[1]));
