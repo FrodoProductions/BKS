@@ -17,7 +17,7 @@ void endlos() {
   printzeit.tv_sec = 2;
 
   // Die PID des Prozesses wird ausgegeben
-  printf("PID: %d\n", getpid());
+  printf("[Hier könnte Ihre böse Nachricht stehen!]\nPID: %d\n", getpid());
 
   while (1) {
     // Ein nanosleep mit einer Länge von 2 Sekunden wird durchgeführt.
