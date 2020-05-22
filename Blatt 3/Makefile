@@ -3,9 +3,8 @@ NASMFLAGS=-f elf64
 CFLAGS=-std=c11 -Wall -Wextra -pedantic -O2
 CPPFLAGS=-MMD -MF $*.d -D_POSIX_C_SOURCE=199309L
 
-#kill_Scheller_Brandenburg
 
-programs= evil_Scheller_Brandenburg
+programs= evil_Scheller_Brandenburg kill_Scheller_Brandenburg
 all: $(programs)
 
 -include *.d
