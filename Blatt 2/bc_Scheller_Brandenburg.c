@@ -1,3 +1,4 @@
+//Authors: Scheller, Brandenburg
 #include <stdio.h>
 #include <ctype.h>
 
