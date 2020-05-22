@@ -16,5 +16,6 @@ int main(int argc, char const *argv[]) {
   else {
     for (int i = 1; i < argc; i++){
       kill(atoi(argv[i]), SIGTERM);
+    }
   }
 }
