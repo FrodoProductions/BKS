@@ -1,0 +1,15 @@
+1.	RR - Präemptiv. Jeder Prozess darf den Prozessor eine gewisse Zeiteinheit lang 		verwenden, der Prozessor wechselt zwischen allen. Starvation ist nicht möglich, da 	jeder Prozess zwangsläufig rankommt.
+
+	HRRN - Nicht präemptiv. Für jeden Prozess wird ein Response Ratio nach der Formel 	(vergangene Wartezeit + vermutete Ausführungszeit)/vermutete Ausführungszeit 		berechnet. Der Prozess mit dem jeweils höchsten Wert wird ausgeführt. Starvation 	ist nicht möglich, da selbst sehr lange Prozesse irgendwann zwangsläufig 		ausgeführt werden.
+
+	SPN - Nicht präemptiv. Der Prozess mit der jeweils kürzesten Ausführungszeit wird 	ausgeführt. Starvation ist für lange Prozesse möglich, wenn ständig Prozesse mit 	einer kürzeren Ausführungszeit zugelassen werden.
+
+	SRT - Präemptiv. Wie SPN, nur wird von der Ausführungszeit der Prozesse die Zeit 	abgezogen, die sich der Prozess bereits in der Ausführung befindet. Starvation 		kann hier nach den selben Regeln wie bei SPN auftreten.
+
+	FCFS - Nicht präemptiv. Die Prozesse werden in der Zulassungsreihenfolge 		ausgeführt. Starvation tritt nicht auf, da jeder Prozess zwangsläufig ausgeführt 	wird.
+
+2. 	Kasse	Kunden			Avg. wait time	Avg. exec. time
+
+	K1	6  10 13 20 19		25		13,6
+	K2	15 3  15 19 4  6  21	39		11,8
+	K3	23 7  40		26,5		23,3
