@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,12 +13,14 @@ int selectNonInvisible(const struct dirent *file) {
 int main(int argc, char const *argv[]) {
 
   struct dirent **files;
+  struct stat buffer;
+
   size_t fileCount;
 
   int c;
   int (*filter) (const struct dirent*) = &selectNonInvisible;
 
-  char *path = NULL;
+  const char *path;
 
   while((c = getopt (argc, argv, "al:")) != -1) {
 
@@ -29,21 +32,28 @@ int main(int argc, char const *argv[]) {
         break;
       case 'l':
         // do something
-      case ':':
-        printf("ls needs a path!\nusage: ls [-al] [file ...]\n");
-        break;
       case '?':
         printf("ls: illegal option -- %c\nusage: ls [-al] [file ...]\n", optopt);
-        break;
+        return 1;
     }
   }
 
-  fileCount = scandir(argv[optind], &files, (*filter), alphasort);
+  if (argv[optind] == NULL) {
+    path = ".";
+  } else if (opendir(argv[optind])) {
+    path = argv[optind];
+  } else {
+    printf("ls: directory either non-existant or access has not been granted.\n");
+    return 2;
+  }
+
+  fileCount = scandir(path, &files, (*filter), alphasort);
 
   printf("%d files detected in this directory!\n", fileCount);
 
   for (size_t i = 0; i < fileCount; i++) {
     printf("%s\t", files[i]->d_name);
+    stat(files[i]->d_name, &buffer);
   }
 
   printf("\n");
