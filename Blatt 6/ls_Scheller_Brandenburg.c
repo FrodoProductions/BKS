@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
+#include <langinfo.h>
 
 int selectNonInvisible(const struct dirent *file) {
   return(strncmp(file->d_name, ".", 1));
@@ -54,6 +56,12 @@ int main(int argc, char const *argv[]) {
   for (size_t i = 0; i < fileCount; i++) {
     printf("%s\t", files[i]->d_name);
     stat(files[i]->d_name, &buffer);
+
+    char datestring[256];
+
+    strftime(datestring, 20, "%d-%m-%y", localtime(&(buffer.st_mtime)));
+
+    printf("%s\n", datestring);
   }
 
   printf("\n");
