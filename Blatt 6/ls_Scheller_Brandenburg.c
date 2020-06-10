@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <time.h>
 #include <langinfo.h>
+#include <pwd.h>
+#include <grp.h>
 
 int selectNonInvisible(const struct dirent *file) {
   return(strncmp(file->d_name, ".", 1));
@@ -51,7 +53,7 @@ int main(int argc, char const *argv[]) {
 
   fileCount = scandir(path, &files, (*filter), alphasort);
 
-  printf("%d files detected in this directory!\n", fileCount);
+  //printf("%d files detected in this directory!\n", fileCount);
 
   for (size_t i = 0; i < fileCount; i++) {
 
@@ -63,10 +65,15 @@ int main(int argc, char const *argv[]) {
 
       stat(fullpath, &buffer);
 
-      printf("%10s\t", strtok(ctime(&buffer.st_mtime), "\n"));
+      struct passwd *upws = getpwuid(buffer.st_uid);
+      struct group *gpws = getgrgid(buffer.st_gid);
+      printf("%5s ", upws->pw_name);
+      printf("%5s ", gpws->gr_name);
+
+      printf("%5s ", strtok(ctime(&buffer.st_mtime), "\n"));
     }
 
-    printf("%-10s\n", files[i]->d_name);
+    printf("%-5s\n", files[i]->d_name);
   }
 
   printf("\n");
