@@ -2,8 +2,8 @@ CFLAGS=-std=c11 -Wall -Wextra -pedantic -O2
 DEFINES=
 CPPFLAGS=-MMD -MF $@.d $(DEFINES)
 
-programs=scheduler
-obj-y=scheduler_wrapper.o scheduler.o
+programs=scheduler_Scheller_Brandenburg
+obj-y=scheduler_wrapper.o scheduler_Scheller_Brandenburg.o
 scheduler: $(obj-y)
 
 all: $(programs)

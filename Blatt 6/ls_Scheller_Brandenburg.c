@@ -19,22 +19,22 @@ int main(int argc, char const *argv[]) {
 
   size_t fileCount;
 
-  int c;
+  char c;
+  int printLong = 0;
   int (*filter) (const struct dirent*) = &selectNonInvisible;
 
   const char *path;
 
-  while((c = getopt (argc, argv, "al:")) != -1) {
-
-    path = optarg;
+  while((c = getopt (argc, argv, ":al")) != -1) {
 
     switch (c) {
       case 'a':
         filter = NULL;
         break;
       case 'l':
-        // do something
-      case '?':
+        printLong = 1;
+        break;
+      default:
         printf("ls: illegal option -- %c\nusage: ls [-al] [file ...]\n", optopt);
         return 1;
     }
@@ -54,14 +54,19 @@ int main(int argc, char const *argv[]) {
   printf("%d files detected in this directory!\n", fileCount);
 
   for (size_t i = 0; i < fileCount; i++) {
-    printf("%s\t", files[i]->d_name);
-    stat(files[i]->d_name, &buffer);
 
-    char datestring[256];
+    if (printLong) {
+      char fullpath[512];
+      strcpy(fullpath, path);
+      strcat(fullpath, "/");
+      strcat(fullpath, files[i]->d_name);
 
-    strftime(datestring, 20, "%d-%m-%y", localtime(&(buffer.st_mtime)));
+      stat(fullpath, &buffer);
 
-    printf("%s\n", datestring);
+      printf("%10s\t", strtok(ctime(&buffer.st_mtime), "\n"));
+    }
+
+    printf("%-10s\n", files[i]->d_name);
   }
 
   printf("\n");
