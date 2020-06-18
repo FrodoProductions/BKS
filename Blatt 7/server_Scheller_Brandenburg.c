@@ -54,3 +54,5 @@ int main(int argc, char const *argv[]) {
   return 0;
 
 }
+
+// QUELLE: http://beej.us/guide/bgipc/html/multi/unixsock.html (18.06.2020, 18:23 Uhr)
