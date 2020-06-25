@@ -12,7 +12,7 @@ int main(int argc, char const *argv[]) {
   int t;
   char buf[100];
 
-  // Es wird überprüft, ob ein Pfad angegeben wurde.
+  // Es wird überprüft, ob eine Addresse und ein Port angegeben wurden.
   if (argc != 3) {
     perror("Please provide an address and a port.");
     exit(1);
@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
   // Ein Stream-Socket wird geöffnet.
   s = socket(AF_INET, SOCK_STREAM, 0);
 
-  // Der Pfad wird aus den angegeben Argumenten erzeugt.
+  // Addresse und Port des Sockets werden auf die übergebenen Werte eingestellt.
   remote.sin_family = AF_INET;
   remote.sin_addr.s_addr = inet_addr(argv[1]);
   remote.sin_port = htons(atoi(argv[2]));
@@ -64,5 +64,3 @@ int main(int argc, char const *argv[]) {
   close(s);
   return 0;
 }
-
-// QUELLE: http://beej.us/guide/bgipc/html/multi/unixsock.html (18.06.2020, 18:23 Uhr)
