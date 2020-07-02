@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 // BEKANNTER BUG: Aus irgendeinem Grund gibt der Server Teile voriger Nachrichten aus, obwohl der Buffer eigentlich in jedem Durchgang neu erzeugt wird.
 // Ich weiß weder, warum der Bug existiert, noch wie ich ihn beheben kann.
@@ -21,6 +22,7 @@ int main(int argc, char const *argv[]) {
   struct sockaddr_in local, remote;
   fd_set active_fds, read_fds, write_fds;
   int len, i;
+  char buf[100], filebuf[512];
 
   // Es wird überprüft, ob eine Addresse und ein Port angegeben wurden.
   if (argc != 3) {
@@ -97,7 +99,8 @@ int main(int argc, char const *argv[]) {
 
         } else { // Es handelt sich nicht um den ursprünglichen Socket, also versucht ein bereits bekannter und verbundener Client, mit dem Server zu kommunizieren.
           int read_bytes;
-          char buf[100];
+
+          memset(buf, '\0', sizeof buf);
 
           // Die Nachricht wird ausgelesen.
           read_bytes = recv(i, &buf, 100, 0);
@@ -117,9 +120,23 @@ int main(int argc, char const *argv[]) {
               close(i);
               FD_CLR(i, &active_fds);
             } else {
-              // Andernfalls wird die Nachricht in der Oberfläche des Servers ausgegeben und der Client erhält OK zurück.
-              printf("Socket %d: %s", i, buf);
-              send(i, "OK", len, 0);
+              // Andernfalls wird versucht, die Datei zu öffnen und den Inhalt an den Client zu schicken.
+              memset(filebuf, '\0', sizeof filebuf);
+              strtok(buf, "\n");
+
+              int in = open(buf, O_RDONLY);
+
+              if (in < 0) {
+                perror("open");
+                send(i, "OK", len, 0);
+              }
+
+              int inputsize = read(in, &filebuf, 512);
+
+              //printf("%s\n", filebuf);
+
+              send(i, filebuf, inputsize, 0);
+              close(in);
             }
           }
         }
