@@ -9,10 +9,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 
-// BEKANNTER BUG: Aus irgendeinem Grund gibt der Server Teile voriger Nachrichten aus, obwohl der Buffer eigentlich in jedem Durchgang neu erzeugt wird.
-// Ich weiß weder, warum der Bug existiert, noch wie ich ihn beheben kann.
-
-// Der Compiler gibt außerdem eine Warnung aus, wenn ich versuche, Rückgabewerte wie -1 mit x < 0 abzufangen. Dies geschieht mit der Begründung, dass x unsigned ist,
+// Der Compiler gibt eine Warnung aus, wenn ich versuche, Rückgabewerte wie -1 mit x < 0 abzufangen. Dies geschieht mit der Begründung, dass x unsigned ist,
 // was im Fall einer fehlerfreien Ausführung sicherlich der Fall ist, abfangen muss ich die anderen Fälle aber trotzdem. Ich hoffe, man kann mir für diese unschönen Ausgaben im Compiler verzeihen.
 
 // Quelle für die Anwendung von select(): https://www.gnu.org/software/libc/manual/html_node/Server-Example.html (25.06.2020, 23:04 Uhr)
@@ -110,7 +107,7 @@ int main(int argc, char const *argv[]) {
             perror("Could not read");
             exit(2);
           } else if (read_bytes == 0) {
-            // Es wurde keine Nachricht bzw. ein EOF übergeben-.
+            // Es wurde keine Nachricht bzw. ein EOF übergeben.
             close(i);
             FD_CLR(i, &active_fds);
           } else {
