@@ -6,6 +6,7 @@
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
 
@@ -19,12 +20,11 @@ int main(int argc, char const *argv[]) {
   struct sockaddr_in local, remote;
   fd_set active_fds, read_fds, write_fds;
   int len, i;
-  char buf[512], filename[512], filebuf[5000000];
+  char buf[512], filename[512];
 
   // HTTP-Header
-  char header[5001000];
+  // char header[201000];
   int status;
-  char type[32];  // Könnte auch mit einem enum gelöst werden?
 
   // Es wird überprüft, ob eine Addresse und ein Port angegeben wurden.
   if (argc != 3) {
@@ -123,8 +123,6 @@ int main(int argc, char const *argv[]) {
               FD_CLR(i, &active_fds);
             } else {
               // Andernfalls wird versucht, die Datei zu öffnen und den Inhalt an den Client zu schicken.
-              memset(filebuf, '\0', sizeof filebuf);
-              memset(filebuf, '\0', sizeof header);
               memset(filename, '\0', sizeof filename);
 
               for (int i = 5; i < sizeof buf; i++) {
@@ -135,9 +133,10 @@ int main(int argc, char const *argv[]) {
                 filename[i-5] = buf[i];
               }
 
-              int in = open(filename, O_RDONLY);
+              FILE *in;
+              in = fopen(filename, "rb");
 
-              if (in < 0) {
+              if (!in) {
                 status = 404;
                 printf("404 Could not get file %s\n", filename);
               } else {
@@ -145,39 +144,60 @@ int main(int argc, char const *argv[]) {
                 printf("200 Got file %s\n", filename);
               }
 
+              char type[32];
               char extension[32];
+
               strcpy(extension, &filename[strlen(filename)-4]);
 
-              if (strcmp(extension, "html")) {
+              if (strcmp(extension, "html") == 0) {
                 strcpy(type, "text/html");
-              } else if (strcmp(extension, "jpeg") || strcmp(extension, ".jpg")) {
+              } else if (strcmp(extension, "jpeg") == 0 || strcmp(extension, ".jpg") == 0) {
                 strcpy(type, "image/jpeg");
-              } else if (strcmp(extension, ".gif")) {
+              } else if (strcmp(extension, ".gif") == 0) {
                 strcpy(type, "image/gif");
               } else {
                 strcpy(type, "unknown");
               }
 
-              int filesize = read(in, &filebuf, 1000000);
+              printf("%s\n", type);
+
+              fseek(in, 0L, SEEK_END);
+              int size = ftell(in);
+
+              printf("%d\n", size);
+
+              fseek(in, 0L, SEEK_SET);
+
+              char *filebuf;
+              filebuf = (char*)calloc(size, sizeof(char));
+
+              char header[1000000];
+
+              int filesize = fread(filebuf, sizeof(char), size, in);
+              fclose(in);
+
+              //filebuf[size] = '\0';
 
               printf("%d\n", filesize);
+              printf("%d\n\n", strlen(filebuf));
 
-              sprintf(header, "HTTP/1.0 %d\r\nContent-Type: %s\r\nConnection: close\r\nContent-Length: %d\r\n\r\n", status, type, filesize);
+              int headersize = sprintf(header, "HTTP/1.0 %d\r\nContent-Type: %s\r\nConnection: close\r\nContent-Length: %d\r\n\r\n", status, type, filesize);
+
               printf("%s\n", header);
+              printf("%d\n", headersize);
 
-              strcat(header, strcat(filebuf, "\r\n"));
-              printf("Appended file.\n");
-              printf("Appended end.\n");
+              //strcat(header, strcat(filebuf, "\r\n"));
+              //printf("Appended file.\n");
+              //printf("Appended end.\n");
 
-              int out = send(i, header, strlen(header), 0);
-              if (out < 0) {
-                printf("Well this is a fucking problem.\n");
-              } else {
-                printf("Sent file.\n");
-              }
+              send(i, header, headersize, 0);
+              send(i, filebuf, size, 0);
+              send(i, "\r\n", sizeof("\r\n"), 0);
 
-              close(in);
-              printf("Closed connection.\n");
+              //printf("Closed connection.\n");
+              free(filebuf);
+              close(i);
+              FD_CLR(i, &active_fds);
             }
           }
         }
