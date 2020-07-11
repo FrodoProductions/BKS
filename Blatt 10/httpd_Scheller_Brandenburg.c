@@ -19,10 +19,10 @@ int main(int argc, char const *argv[]) {
   struct sockaddr_in local, remote;
   fd_set active_fds, read_fds, write_fds;
   int len, i;
-  char buf[512], filename[512], filebuf[1000000];
+  char buf[512], filename[512], filebuf[5000000];
 
   // HTTP-Header
-  char header[2000000];
+  char header[5001000];
   int status;
   char type[32];  // Könnte auch mit einem enum gelöst werden?
 
@@ -124,6 +124,7 @@ int main(int argc, char const *argv[]) {
             } else {
               // Andernfalls wird versucht, die Datei zu öffnen und den Inhalt an den Client zu schicken.
               memset(filebuf, '\0', sizeof filebuf);
+              memset(filebuf, '\0', sizeof header);
               memset(filename, '\0', sizeof filename);
 
               for (int i = 5; i < sizeof buf; i++) {
@@ -162,9 +163,9 @@ int main(int argc, char const *argv[]) {
               printf("%d\n", filesize);
 
               sprintf(header, "HTTP/1.0 %d\r\nContent-Type: %s\r\nConnection: close\r\nContent-Length: %d\r\n\r\n", status, type, filesize);
-              printf("First part of header.\n");
+              printf("%s\n", header);
 
-              strcat(header, /*strcat(filebuf, "\r\n")*/filebuf);
+              strcat(header, strcat(filebuf, "\r\n"));
               printf("Appended file.\n");
               printf("Appended end.\n");
 
