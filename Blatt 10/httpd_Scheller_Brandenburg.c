@@ -19,12 +19,8 @@ int main(int argc, char const *argv[]) {
   unsigned int s, s2;
   struct sockaddr_in local, remote;
   fd_set active_fds, read_fds, write_fds;
-  int len, i;
+  int len, i, status;
   char buf[512], filename[512];
-
-  // HTTP-Header
-  // char header[201000];
-  int status;
 
   // Es wird überprüft, ob eine Addresse und ein Port angegeben wurden.
   if (argc != 3) {
@@ -125,6 +121,7 @@ int main(int argc, char const *argv[]) {
               // Andernfalls wird versucht, die Datei zu öffnen und den Inhalt an den Client zu schicken.
               memset(filename, '\0', sizeof filename);
 
+              // Der Name der angeforderten Datei wird aus dem Request-Header gelesen, indem alle Zeichen nach "GET /" bis zum nächsten Leerzeichen in einen Puffer geschrieben werden.
               for (int i = 5; i < sizeof buf; i++) {
                 if (buf[i] == ' ') {
                   break;
@@ -133,22 +130,28 @@ int main(int argc, char const *argv[]) {
                 filename[i-5] = buf[i];
               }
 
+              // Die Datei wird mit Leserechten geöffnet.
               FILE *in;
-              in = fopen(filename, "rb");
+              in = fopen(filename, "r");
 
+              // Es wird überprüft, ob die Datei geöffnet werden konnte
               if (!in) {
                 status = 404;
-                printf("404 Could not get file %s\n", filename);
+                printf("404 Could not get file %s\n\n", filename);
+                strcpy(filename, "404.html");
+                in = fopen(filename, "r");
               } else {
                 status = 200;
-                printf("200 Got file %s\n", filename);
+                printf("200 Got file %s\n\n", filename);
               }
 
               char type[32];
-              char extension[32];
+              char extension[16];
 
+              // Die letzten 4 Zeichen des Dateinamens (also in der Regel die Endung) werden in einen Puffer geschrieben.
               strcpy(extension, &filename[strlen(filename)-4]);
 
+              // Basierend auf der Dateiendung wird der Typ der Datei ermittelt.
               if (strcmp(extension, "html") == 0) {
                 strcpy(type, "text/html");
               } else if (strcmp(extension, "jpeg") == 0 || strcmp(extension, ".jpg") == 0) {
@@ -156,45 +159,36 @@ int main(int argc, char const *argv[]) {
               } else if (strcmp(extension, ".gif") == 0) {
                 strcpy(type, "image/gif");
               } else {
-                strcpy(type, "unknown");
+                strcpy(type, "application/octet-stream");
               }
 
-              printf("%s\n", type);
+              int size = 1;
 
               fseek(in, 0L, SEEK_END);
-              int size = ftell(in);
-
-              printf("%d\n", size);
-
+              size = ftell(in);
               fseek(in, 0L, SEEK_SET);
 
+              // Es wird ein Puffer für die Datei alloziert.
               char *filebuf;
               filebuf = (char*)calloc(size, sizeof(char));
 
-              char header[1000000];
-
-              int filesize = fread(filebuf, sizeof(char), size, in);
+              // Die Datei wird ausgelesen und der Kanal geschlossen.
+              fread(filebuf, sizeof(char), size, in);
               fclose(in);
 
-              //filebuf[size] = '\0';
+              char header[1000000];
 
-              printf("%d\n", filesize);
-              printf("%d\n\n", strlen(filebuf));
+              // Der Header wird ohne die Datei konstruiert.
+              int headersize = sprintf(header, "HTTP/1.0 %d\r\nContent-Type: %s\r\nConnection: close\r\nContent-Length: %d\r\n\r\n", status, type, size);
 
-              int headersize = sprintf(header, "HTTP/1.0 %d\r\nContent-Type: %s\r\nConnection: close\r\nContent-Length: %d\r\n\r\n", status, type, filesize);
-
-              printf("%s\n", header);
-              printf("%d\n", headersize);
-
-              //strcat(header, strcat(filebuf, "\r\n"));
-              //printf("Appended file.\n");
-              //printf("Appended end.\n");
-
+              // Header, Datei und Endung werden gesendet (dies geschieht in 3 Aufrufen, da send bei einem Aufruf nicht alles sendet).
               send(i, header, headersize, 0);
+
               send(i, filebuf, size, 0);
+
               send(i, "\r\n", sizeof("\r\n"), 0);
 
-              //printf("Closed connection.\n");
+              // Der allozierte Puffer wird befreit und die Verbindung getrennt.
               free(filebuf);
               close(i);
               FD_CLR(i, &active_fds);
