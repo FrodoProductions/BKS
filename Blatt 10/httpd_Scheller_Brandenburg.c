@@ -134,7 +134,8 @@ int main(int argc, char const *argv[]) {
               FILE *in;
               in = fopen(filename, "r");
 
-              // Es wird überprüft, ob die Datei geöffnet werden konnte
+              // Es wird überprüft, ob die Datei geöffnet werden konnte.
+              // Wenn nicht, wird stattdessen die 404-Seite geöffnet. 
               if (!in) {
                 status = 404;
                 printf("404 Could not get file %s\n\n", filename);
@@ -162,11 +163,9 @@ int main(int argc, char const *argv[]) {
                 strcpy(type, "application/octet-stream");
               }
 
-              int size = 1;
-
-              fseek(in, 0L, SEEK_END);
-              size = ftell(in);
-              fseek(in, 0L, SEEK_SET);
+              struct stat filestats;
+              stat(filename, &filestats);
+              int size = filestats.st_size;
 
               // Es wird ein Puffer für die Datei alloziert.
               char *filebuf;
